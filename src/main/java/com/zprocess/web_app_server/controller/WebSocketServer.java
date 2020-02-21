@@ -97,8 +97,11 @@ public class WebSocketServer {
         webSocketSet.remove(this); //从set中删除
         subOnlineCount(); //在线数减1
         try {
-            redisTool.del(fid);
-            lock.unlock();
+            if(redisTool.hasKey(fid)){
+                if(sid.equals(redisTool.get(fid))){
+                    redisTool.del(fid);
+                }
+            }
         }catch (Exception e){
 
         }
@@ -114,11 +117,16 @@ public class WebSocketServer {
     public void onMessage(String message, Session session) {
         log.info("收到来自窗口"+sid+"的信息:"+message);
         //群发消息
-        for (WebSocketServer item : webSocketSet) {
-            try {
-                item.sendMessage(message);
-            } catch (IOException e) {
-                e.printStackTrace();
+//        for (WebSocketServer item : webSocketSet) {
+//            try {
+//                item.sendMessage(message);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+        if(redisTool.hasKey(fid)){
+            if(sid.equals(redisTool.get(fid))){
+                redisTool.del(fid);
             }
         }
     }
@@ -132,8 +140,11 @@ public class WebSocketServer {
     public void onError(Session session, Throwable error) {
         log.error("发生错误");
         try {
-            redisTool.del(fid);
-            lock.unlock();
+            if(redisTool.hasKey(fid)){
+                if(sid.equals(redisTool.get(fid))){
+                    redisTool.del(fid);
+                }
+            }
         }catch (Exception e){
 
         }
