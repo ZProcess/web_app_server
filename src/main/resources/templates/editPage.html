@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>编辑文件</title>
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <script src="layui/jquery.js"></script>
+</head>
+<body>
+<div class="layui-container">
+    <div class="layui-row" style="height: 100px" ></div>
+    <div class="layui-row">
+        <div class="layui-col-md3"></div>
+        <div class="layui-col-md9">
+            <form class="layui-form" action="">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">文件名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="fileName" required  lay-verify="required"  autocomplete="off" class="layui-input" readonly="true" id="fileName">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">文件内容</label>
+                    <div class="layui-input-block">
+                        <textarea name="text" placeholder="请输入内容" class="layui-textarea layui-bg-gray" id="textContent" readonly="true"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button  class="layui-btn  layui-bg-gray" lay-submit lay-filter="formDemo" id="saveButton" disabled="true">保存修改</button>
+                        <input type="button" class="layui-btn layui-btn-radius  layui-bg-gray" id="leftTime" disabled="true" value="剩余操作时间： 60秒"></input>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
+        <div class="layui-col-md3"></div>
+    </div>
+</div>
+<script src="layui/layui.js"></script>
+<script type="application/javascript">
+    (function ($) {
+        $.getUrlParam = function (name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) return decodeURI(r[2]);return null;
+        }
+    })(jQuery);
+    function getUuid() {
+        function S4() {
+            return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+        }
+        return (S4()+S4()+S4()+S4()+S4()+S4()+S4()+S4());
+    }
+    //Demo
+    var uuid = $.getUrlParam('uuid'); //文件uuid
+    var userUuid = getUuid();  //用户uuid
+    layui.use('form', function(){
+        var form = layui.form;
+        //监听提交
+        form.on('submit(formDemo)', function(data){
+            data.field.uuid = uuid;
+            data.field.userUuid = userUuid;
+            layer.msg(JSON.stringify(data.field));
+            $.ajax({
+                url:'/updateFile',
+                type:'POST',
+                data:JSON.stringify(data.field),
+                dataType:'JSON',
+                contentType: "application/json;charset-UTF-8",
+                success:function (res) {
+                    debugger;
+                    layer.msg(JSON.stringify(res.responseText));
+                },
+                error:function (erro) {
+                    layer.msg(JSON.stringify(erro));
+                }
+            });
+            return false;
+        });
+    });
+
+
+
+    $(document).ready(function(){
+        uuid = $.getUrlParam('uuid')
+        fileName = $.getUrlParam('fileName');
+        //发送ajax请求，并将返回的响应结果直接赋给div
+        $("#textContent").load("/getFileText",{"uuid":uuid},function (data) {
+        });
+        $("#fileName").val(fileName).addClass("layui-bg-gray");
+        var socket;
+        if(typeof(WebSocket) == "undefined") {
+            console.log("您的浏览器不支持WebSocket");
+        }else{
+            console.log("您的浏览器支持WebSocket");
+//实现化WebSocket对象，指定要连接的服务器地址与端口 建立连接
+//等同于socket = new WebSocket("ws://localhost:8083/checkcentersys/websocket/20");
+//socket = new WebSocket("http://localhost:8080/websocket/${cid}".replace("http","ws"));
+            socket = new WebSocket("ws://127.0.0.1:8080/websocket/"+userUuid+"/"+uuid);
+//打开事件
+            socket.onopen = function() {
+                console.log("Socket 已打开");
+                $("#start").val("Socket 已打开")
+//socket.send("这是来自客户端的消息" + location.href + new Date());
+            };
+//获得消息事件
+            socket.onmessage = function(msg) {
+                console.log(msg.data);
+                $("#message").val(msg.data)
+                var wobj = $.parseJSON(msg.data);
+//发现消息进入 开始处理前端触发逻辑
+                 if(wobj.e == '1'){
+                     $.ajax({
+                         url:'/getFileText?uuid='+uuid,
+                         type:'get',
+                         async: false,
+                         dataType:'JSON',
+                         contentType: "application/json;charset-UTF-8",
+                         success:function (res) {
+                             $("#textContent").val(res);
+                         },
+                         error:function (erro) {
+                             layer.msg(JSON.stringify(erro));
+                         }
+                     });
+                    $("#textContent").removeAttr("readonly");
+                    $("#textContent").removeClass("layui-bg-gray");
+                    $("#saveButton").removeClass("layui-bg-gray").removeAttr("disabled");
+                     $('#leftTime').removeClass("layui-bg-gray").addClass("layui-btn-warm");
+                    time=60;
+                     var timer = setInterval(function() {
+                         if (time == 0) {
+                             clearInterval(timer);
+                             $('#leftTime').val('剩余操作时间： '+time + '秒');
+                         } else {
+                             $('#leftTime').val('剩余操作时间： '+time + '秒');
+                             time--;
+                         }
+                     }, 1000);
+                }else {
+                     $("#textContent").attr("readonly","true");
+                     $("#textContent").addClass("layui-bg-gray");
+                     $("#saveButton").addClass("layui-bg-gray").attr("disabled","true");
+                 }
+                 if(typeof(wobj.t) != "undefined" || wobj.t != null){
+                     $("#textContent").val(wobj.t);
+                 }
+            };
+//关闭事件
+            socket.onclose = function() {
+                console.log("Socket已关闭");
+                $("#close").val("Socket已关闭")
+            };
+//发生了错误事件
+            socket.onerror = function() {
+                alert("Socket发生了错误");
+//此时可以尝试刷新页面
+            }
+//离开页面时，关闭socket
+//jquery1.8中已经被废弃，3.0中已经移除
+// $(window).unload(function(){
+// socket.close();
+//});
+        }
+
+
+    });
+
+
+</script>
+
+
+</body>
+</html>
