@@ -69,9 +69,9 @@ public class WebSocketServer {
             lock.lock();
             log.info(sid+"****************getlock");
             WebsocketVo websocketVo = new WebsocketVo();
-            websocketVo.setT("1");
+            websocketVo.setE("1");
             sendInfo(JSON.toJSONString(websocketVo),sid);
-            websocketVo.setT("0");
+            websocketVo.setE("0");
             sendInfoToOthers(JSON.toJSONString(websocketVo),sid);
             redisTool.set(fid,sid,60);
             while (true){
