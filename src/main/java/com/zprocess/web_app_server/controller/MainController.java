@@ -1,5 +1,6 @@
 package com.zprocess.web_app_server.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -12,6 +13,7 @@ import com.zprocess.web_app_server.utils.RedisTool;
 import com.zprocess.web_app_server.utils.SpringUtil;
 import com.zprocess.web_app_server.vo.FormVo;
 import com.zprocess.web_app_server.vo.PageVo;
+import com.zprocess.web_app_server.vo.WebsocketVo;
 import io.lettuce.core.RedisURI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -185,8 +187,10 @@ public class MainController {
         fileInfo.setUpdateTime(new Date());
         fileInfoService.updateById(fileInfo);
         //推送更新后的内容
-        String message ="{\"e\":\"3\","+"\"t\":\""+formVo.getText()+"\"}";
-        WebSocketServer.sendInfoToOthers(message,formVo.getUserUuid());
+        WebsocketVo websocketVo = new WebsocketVo();
+        websocketVo.setE("3");
+        websocketVo.setT(formVo.getText());
+        WebSocketServer.sendInfoToOthers(JSON.toJSONString(websocketVo),formVo.getUserUuid());
         return "更新文件成功";
     }
 }

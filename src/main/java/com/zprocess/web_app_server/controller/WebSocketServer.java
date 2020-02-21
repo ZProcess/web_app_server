@@ -2,7 +2,9 @@ package com.zprocess.web_app_server.controller;
 
 
 
+import com.alibaba.fastjson.JSON;
 import com.zprocess.web_app_server.utils.RedisTool;
+import com.zprocess.web_app_server.vo.WebsocketVo;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,12 +68,15 @@ public class WebSocketServer {
         try {
             lock.lock();
             log.info(sid+"****************getlock");
-            sendInfo("{\"e\":\"1\"}",sid);
-            sendInfoToOthers("{\"e\":\"0\"}",sid);
+            WebsocketVo websocketVo = new WebsocketVo();
+            websocketVo.setT("1");
+            sendInfo(JSON.toJSONString(websocketVo),sid);
+            websocketVo.setT("0");
+            sendInfoToOthers(JSON.toJSONString(websocketVo),sid);
             redisTool.set(fid,sid,60);
             while (true){
                 if(!redisTool.hasKey(fid)){
-                    sendInfo("{\"e\":\"0\"}",sid);
+                    sendInfo(JSON.toJSONString(websocketVo),sid);
                     break;
                 }
                 continue;
