@@ -5,7 +5,7 @@
 * 前端： layui 、jquery、js
 
 **开发工具：**
-idea
+* idea
 
 **环境要求：**  
 * 后端：jdk8 、 MYSQL服务 、 Redis服务   
