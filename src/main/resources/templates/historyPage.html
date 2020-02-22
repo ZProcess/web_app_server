@@ -64,14 +64,10 @@
                 var data = obj.data //获得当前行数据
                     ,layEvent = obj.event; //获得 lay-event 对应的值
                 if(layEvent === 'downLoad'){
-                    layer.alert(JSON.stringify(data), {
-                        title: '当前行数据：'
-                    });
-                    //标注选中样式
+                    var host = window.location.host;
                     obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
                     window.open("http://"+host+"/download?uuid="+data.uuid+"&fileName="+encodeURI(data.fileName));
                 }else if(obj.event === 'toEdit'){
-                    layer.alert('编辑行：<br>'+ JSON.stringify(data))
                     var host = window.location.host;
                     var url = "http://"+host+"/editPage?"+"uuid="+data.uuid+"&fileName="+encodeURI(data.fileName);
                     window.location.href=url;

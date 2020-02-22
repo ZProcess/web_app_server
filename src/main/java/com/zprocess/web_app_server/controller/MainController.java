@@ -45,8 +45,8 @@ public class MainController {
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @ResponseBody
     public String save(@RequestBody FormVo formVo) throws Exception {
-        if (formVo == null || StringUtils.isEmpty(formVo.getFileName()) || StringUtils.isEmpty(formVo.getText())) {
-            throw new Exception("表单不能为空");
+        if (formVo == null || StringUtils.isEmpty(formVo.getFileName())) {
+            return "文件名不能为空";
         }
         String uuid = FileTool.saveFile(formVo,false);
         saveFileToDB(formVo, uuid);

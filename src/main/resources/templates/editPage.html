@@ -63,18 +63,17 @@
         form.on('submit(formDemo)', function(data){
             data.field.uuid = uuid;
             data.field.userUuid = userUuid;
-            layer.msg(JSON.stringify(data.field));
             $.ajax({
                 url:'/updateFile',
                 type:'POST',
                 data:JSON.stringify(data.field),
-                dataType:'JSON',
+                dataType:'text',
                 contentType: "application/json;charset-UTF-8",
                 success:function (res) {
-                    layer.msg(JSON.stringify(res.responseText));
+                    layer.msg(res);
                 },
                 error:function (erro) {
-                    layer.msg(JSON.stringify(erro));
+                    layer.msg(erro);
                 }
             });
             return false;
@@ -114,12 +113,13 @@
                          url:'/getFileText?uuid='+uuid,
                          type:'get',
                          async: false,
-                         dataType:'JSON',
+                         dataType:'text',
                          contentType: "application/json;charset-UTF-8",
                          success:function (res) {
                              $("#textContent").val(res);
                          },
                          error:function (erro) {
+                             alert(erro);
                          }
                      });
                     $("#textContent").removeAttr("readonly");
