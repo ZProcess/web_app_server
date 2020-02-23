@@ -30,6 +30,7 @@
                     <div class="layui-input-block">
                         <button  class="layui-btn  layui-bg-gray" lay-submit lay-filter="formDemo" id="saveButton" disabled="true">保存修改</button>
                         <input type="button" class="layui-btn layui-btn-radius  layui-bg-gray" id="leftTime" disabled="true" value="剩余操作时间： 60秒"></input>
+                        <input type="button" class="layui-btn layui-btn-radius layui-bg-blue" onclick="javascript:history.back(-1);" value="返回上一页">
                     </div>
                 </div>
 
@@ -140,6 +141,7 @@
                      $("#textContent").attr("readonly","true");
                      $("#textContent").addClass("layui-bg-gray");
                      $("#saveButton").addClass("layui-bg-gray").attr("disabled","true");
+                     $('#leftTime').removeClass("layui-btn-warm").addClass("layui-bg-gray");
                  }
                  if(typeof(wobj.t) != "undefined" || wobj.t != null){
                      $("#textContent").val(wobj.t);

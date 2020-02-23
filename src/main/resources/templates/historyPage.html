@@ -11,6 +11,7 @@
 <div id="pTable" style="width: 1200px;">
     <table class="layui-table" id="layui_table_id" lay-filter="test" ></table>
     <div id="laypage"></div>
+    <input type="button" class="layui-btn layui-btn-radius layui-bg-blue" onclick="javascript:history.back(-1);" value="返回上一页">
 </div>
 <table class="layui-hide" id="test"></table>
 <script src="layui/layui.js"></script>
@@ -29,16 +30,17 @@
                 laypage = layui.laypage;
             table.render({
                 elem: '#layui_table_id'
-                , url: url
+                ,url: url
                 ,where:{pageNum:start,pageSize:limitsize} //传参*/
                 , cols: [
                     [
-                    {field: 'fileName', title: '文件名', width: '170', event: 'downLoad',sort: true}
-                    ,{field: 'operation', title: '操作', width: '100',fixed: 'right', toolbar: '#barDemo'}
+                    {field: 'fileName', title: '文件名', width: '250', event: 'downLoad',sort: true,align: 'center'}
+                    ,{field: 'operation', title: '操作', width: '250',fixed: 'right', toolbar: '#barDemo',align: 'center'}
                     ]
                 ]
                 , page: false
                 , height: 430
+                , width: 500
                 ,done: function(res, curr, count){
                     //如果是异步请求数据方式，res即为你接口返回的信息。
                     //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
