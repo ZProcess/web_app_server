@@ -8,4 +8,5 @@ public class FormVo {
     private String text;
     private String uuid;
     private String userUuid;
+    private String editor1;
 }

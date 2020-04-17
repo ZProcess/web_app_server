@@ -6,6 +6,7 @@
     <title>编辑文件</title>
     <link rel="stylesheet" href="layui/css/layui.css">
     <script src="layui/jquery.js"></script>
+    <script src="ckeditor/ckeditor.js"></script>
 </head>
 <body>
 <div class="layui-container">
@@ -23,7 +24,9 @@
                 <div class="layui-form-item layui-form-text">
                     <label class="layui-form-label">文件内容</label>
                     <div class="layui-input-block">
-                        <textarea name="text" placeholder="请输入内容" class="layui-textarea layui-bg-gray" id="textContent" readonly="true"></textarea>
+                       <textarea name="text" id="textContent" rows="10" cols="80">
+                                请输入内容
+                        </textarea>
                     </div>
                 </div>
                 <div class="layui-form-item">
@@ -117,13 +120,16 @@
                          dataType:'text',
                          contentType: "application/json;charset-UTF-8",
                          success:function (res) {
-                             $("#textContent").val(res);
+                             // $("#textContent").val(res)
+                             CKEDITOR.instances.WORK_INTRODUCTION.setData(res);
                          },
                          error:function (erro) {
                              alert(erro);
                          }
                      });
-                    $("#textContent").removeAttr("readonly");
+                     debugger
+                     CKEDITOR.instances.textContent.setReadOnly(false);
+                     $("#textContent").removeAttr("readonly");
                     $("#textContent").removeClass("layui-bg-gray");
                     $("#saveButton").removeClass("layui-bg-gray").removeAttr("disabled");
                      $('#leftTime').removeClass("layui-bg-gray").addClass("layui-btn-warm");
@@ -138,7 +144,7 @@
                          }
                      }, 1000);
                 }else {
-                     $("#textContent").attr("readonly","true");
+                     CKEDITOR.instances.textContent.setReadOnly(true);
                      $("#textContent").addClass("layui-bg-gray");
                      $("#saveButton").addClass("layui-bg-gray").attr("disabled","true");
                      $('#leftTime').removeClass("layui-btn-warm").addClass("layui-bg-gray");
@@ -169,7 +175,11 @@
 
 
 </script>
-
+<script>
+    // Replace the <textarea id="editor1"> with a CKEditor
+    // instance, using default configuration.
+    CKEDITOR.replace('textContent');
+</script>
 
 </body>
 </html>
