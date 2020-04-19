@@ -32,8 +32,8 @@
                 <div class="layui-form-item">
                     <div class="layui-input-block">
                         <button  class="layui-btn  layui-bg-gray" lay-submit lay-filter="formDemo" id="saveButton" disabled="true">保存修改</button>
-                        <input type="button" class="layui-btn layui-btn-radius  layui-bg-gray" id="leftTime" disabled="true" value="剩余操作时间： 60秒"></input>
-                        <input type="button" class="layui-btn layui-btn-radius layui-bg-blue" onclick="javascript:history.back(-1);" value="返回上一页">
+                        <!--<input type="button" class="layui-btn layui-btn-radius  layui-bg-gray" id="leftTime" disabled="true" value="剩余操作时间： 60秒"></input>-->
+                        <input type="button" class="layui-btn layui-btn-radius layui-bg-blue" onclick="clodeSocket()" value="返回上一页">
                     </div>
                 </div>
 
@@ -61,6 +61,7 @@
     //Demo
     var uuid = $.getUrlParam('uuid'); //文件uuid
     var userUuid = getUuid();  //用户uuid
+    var socket = null;
     layui.use('form', function(){
         var form = layui.form;
         //监听提交
@@ -87,10 +88,12 @@
 
 
     $(document).ready(function(){
+        CKEDITOR.replace('textContent');
         uuid = $.getUrlParam('uuid')
         fileName = $.getUrlParam('fileName');
         //发送ajax请求，并将返回的响应结果直接赋给div
         $("#textContent").load("/getFileText",{"uuid":uuid},function (data) {
+            CKEDITOR.instances.textContent.setData(data);
         });
         $("#fileName").val(fileName).addClass("layui-bg-gray");
         var socket;
@@ -99,13 +102,13 @@
         }else{
             console.log("您的浏览器支持WebSocket");
 
-            socket = new WebSocket("ws://127.0.0.1:8080/websocket/"+userUuid+"/"+uuid);
+            socket = new WebSocket("ws://127.0.0.1:8889/websocket/"+userUuid+"/"+uuid);
             //打开事件
             socket.onopen = function() {
                 console.log("Socket 已打开");
-                $("#start").val("Socket 已打开")
             //socket.send("这是来自客户端的消息" + location.href + new Date());
             };
+            socket.send({"uuuuu":uuid});
             //获得消息事件
             socket.onmessage = function(msg) {
                 console.log(msg.data);
@@ -121,7 +124,7 @@
                          contentType: "application/json;charset-UTF-8",
                          success:function (res) {
                              // $("#textContent").val(res)
-                             CKEDITOR.instances.WORK_INTRODUCTION.setData(res);
+                             CKEDITOR.instances.textContent.setData(res);
                          },
                          error:function (erro) {
                              alert(erro);
@@ -129,22 +132,20 @@
                      });
                      debugger
                      CKEDITOR.instances.textContent.setReadOnly(false);
-                     $("#textContent").removeAttr("readonly");
-                    $("#textContent").removeClass("layui-bg-gray");
                     $("#saveButton").removeClass("layui-bg-gray").removeAttr("disabled");
                      $('#leftTime').removeClass("layui-bg-gray").addClass("layui-btn-warm");
-                    time=60;
-                     var timer = setInterval(function() {
-                         if (time == 0) {
-                             clearInterval(timer);
-                             $('#leftTime').val('剩余操作时间： '+time + '秒');
-                         } else {
-                             $('#leftTime').val('剩余操作时间： '+time + '秒');
-                             time--;
-                         }
-                     }, 1000);
+                    // time=60;
+                    //  var timer = setInterval(function() {
+                    //      if (time == 0) {
+                    //          clearInterval(timer);
+                    //          $('#leftTime').val('剩余操作时间： '+time + '秒');
+                    //      } else {
+                    //          $('#leftTime').val('剩余操作时间： '+time + '秒');
+                    //          time--;
+                    //      }
+                    //  }, 1000);
                 }else {
-                     CKEDITOR.instances.textContent.setReadOnly(true);
+                     CKEDITOR.instances.textContent.setReadOnly(false);
                      $("#textContent").addClass("layui-bg-gray");
                      $("#saveButton").addClass("layui-bg-gray").attr("disabled","true");
                      $('#leftTime').removeClass("layui-btn-warm").addClass("layui-bg-gray");
@@ -166,19 +167,17 @@
             //离开页面时，关闭socket
             //jquery1.8中已经被废弃，3.0中已经移除
 
-            window.οnunlοad=function(event){
+            window.onunload=function(event){
                 event.returnValue = false;
-                socket.send(uuid);
             }
         }
     });
+function clodeSocket() {
+    debugger
+    socket.send({"uuid":uuid});
+    javascript:history.back(-1);
+}
 
-
-</script>
-<script>
-    // Replace the <textarea id="editor1"> with a CKEditor
-    // instance, using default configuration.
-    CKEDITOR.replace('textContent');
 </script>
 
 </body>

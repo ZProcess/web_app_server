@@ -102,8 +102,9 @@ public class WebSocketServer {
                     redisTool.del(fid);
                 }
             }
+            lock.unlock();
         }catch (Exception e){
-
+            lock.unlock();
         }
 
         log.info("有一连接关闭！当前在线人数为" + getOnlineCount());
@@ -129,6 +130,7 @@ public class WebSocketServer {
                 redisTool.del(fid);
             }
         }
+        lock.unlock();
     }
 
     /**

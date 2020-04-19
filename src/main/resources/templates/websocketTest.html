@@ -27,7 +27,7 @@
 //实现化WebSocket对象，指定要连接的服务器地址与端口 建立连接
 //等同于socket = new WebSocket("ws://localhost:8083/checkcentersys/websocket/20");
 //socket = new WebSocket("http://localhost:8080/websocket/${cid}".replace("http","ws"));
-        socket = new WebSocket("ws://127.0.0.1:8080/websocket/"+uuid);
+        socket = new WebSocket("ws://127.0.0.1:8889/websocket/"+uuid);
 //打开事件
         socket.onopen = function() {
             console.log("Socket 已打开");

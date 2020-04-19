@@ -39,7 +39,7 @@ public class MainController {
 
     @RequestMapping(value = "/")
     public String newPage() {
-        return "/newPage";
+        return "newPage";
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
@@ -63,12 +63,12 @@ public class MainController {
 
     @RequestMapping(value = "/history")
     public String historyPage() {
-        return "/historyPage";
+        return "historyPage";
     }
 
     @RequestMapping(value = "/editPage")
     public String editPage() {
-        return "/editPage";
+        return "editPage";
     }
 
 
@@ -170,7 +170,7 @@ public class MainController {
 
     @RequestMapping(value = "/websocketTest")
     public String websocketTest() {
-        return "/websocketTest";
+        return "websocketTest";
     }
 
     @RequestMapping(value = "/updateFile")
