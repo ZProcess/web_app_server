@@ -42,6 +42,10 @@ public class MainController {
         return "newPage";
     }
 
+    @RequestMapping(value = "/login")
+    public String login() {
+        return "login";
+    }
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @ResponseBody
     public String save(@RequestBody FormVo formVo) throws Exception {

@@ -14,6 +14,12 @@
     <div class="layui-row">
         <div class="layui-col-md3"></div>
         <div class="layui-col-md9">
+            <div class="layui-form-item">
+                <label class="layui-form-label">当前用户：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="username" required  lay-verify="required"  autocomplete="off" class="layui-input layui-bg-gray" readonly="true" value="test2">
+                </div>
+            </div>
             <form class="layui-form" action="">
                 <div class="layui-form-item">
                     <label class="layui-form-label">文件名</label>
@@ -66,6 +72,9 @@
         var form = layui.form;
         //监听提交
         form.on('submit(formDemo)', function(data){
+            debugger;
+            var CText=CKEDITOR.instances.textContent.document.getBody().getText(); //取得纯文本
+            data.field.text = CText;
             data.field.uuid = uuid;
             data.field.userUuid = userUuid;
             $.ajax({
@@ -108,7 +117,7 @@
                 console.log("Socket 已打开");
             //socket.send("这是来自客户端的消息" + location.href + new Date());
             };
-            socket.send({"uuuuu":uuid});
+            // socket.send({"uuuuu":uuid});
             //获得消息事件
             socket.onmessage = function(msg) {
                 console.log(msg.data);
@@ -133,7 +142,7 @@
                      debugger
                      CKEDITOR.instances.textContent.setReadOnly(false);
                     $("#saveButton").removeClass("layui-bg-gray").removeAttr("disabled");
-                     $('#leftTime').removeClass("layui-bg-gray").addClass("layui-btn-warm");
+                     // $('#leftTime').removeClass("layui-bg-gray").addClass("layui-btn-warm");
                     // time=60;
                     //  var timer = setInterval(function() {
                     //      if (time == 0) {
@@ -174,7 +183,6 @@
     });
 function clodeSocket() {
     debugger
-    socket.send({"uuid":uuid});
     javascript:history.back(-1);
 }
 
