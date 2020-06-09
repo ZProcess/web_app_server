@@ -66,7 +66,6 @@ public class WebSocketServer {
         this.sid = sid;
         this.fid = fid;
         try {
-            lock.lock();
             log.info(sid+"****************getlock");
             WebsocketVo websocketVo = new WebsocketVo();
             websocketVo.setE("1");
@@ -147,8 +146,9 @@ public class WebSocketServer {
                     redisTool.del(fid);
                 }
             }
+            lock.unlock();
         }catch (Exception e){
-
+            lock.unlock();
         }
         error.printStackTrace();
     }
