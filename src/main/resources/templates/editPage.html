@@ -1,210 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>编辑文件</title>
-    <link rel="stylesheet" href="layui/css/layui.css">
-    <script src="layui/jquery.js"></script>
-    <script src="ckeditor/ckeditor.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>编辑文件</title>
+  <link rel="stylesheet" href="layui/css/layui.css">
+  <script src="layui/jquery.js"></script>
+  <script src="ckeditor/ckeditor.js"></script>
 </head>
 <body onbeforeunload="return show();">
 <div class="layui-container">
-    <div class="layui-row" style="height: 100px" ></div>
-    <div class="layui-row">
-        <div class="layui-col-md3"></div>
-        <div class="layui-col-md9">
-            <div class="layui-form-item">
-                <label class="layui-form-label">当前用户：</label>
-                <div class="layui-input-block">
-                    <input type="text" name="username" required  lay-verify="required"  autocomplete="off" class="layui-input layui-bg-gray" readonly="true" value="test2">
-                </div>
-            </div>
-            <form class="layui-form" action="">
-                <div class="layui-form-item">
-                    <label class="layui-form-label">文件名</label>
-                    <div class="layui-input-block">
-                        <input type="text" name="fileName" required  lay-verify="required"  autocomplete="off" class="layui-input" readonly="true" id="fileName">
-                    </div>
-                </div>
-                <div class="layui-form-item layui-form-text">
-                    <label class="layui-form-label">文件内容</label>
-                    <div class="layui-input-block">
+  <div class="layui-row" style="height: 100px"></div>
+  <div class="layui-row">
+    <div class="layui-col-md3"></div>
+    <div class="layui-col-md9">
+      <div class="layui-form-item">
+        <label class="layui-form-label">当前用户：</label>
+        <div class="layui-input-block">
+          <input type="text" name="username" required lay-verify="required" autocomplete="off"
+                 class="layui-input layui-bg-gray" readonly="true"  id="currentUser">
+        </div>
+      </div>
+      <form class="layui-form" action="">
+        <div class="layui-form-item">
+          <label class="layui-form-label">文件名</label>
+          <div class="layui-input-block">
+            <input type="text" name="fileName" required lay-verify="required" autocomplete="off"
+                   class="layui-input" readonly="true" id="fileName">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">是否有人在编辑：</label>
+          <div class="layui-input-block">
+            <input type="text" name="username" required lay-verify="required" autocomplete="off"
+                   class="layui-input" readonly="true" value="无" id="editable">
+          </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+          <label class="layui-form-label">文件内容</label>
+          <div class="layui-input-block">
                        <textarea name="text" id="textContent" rows="10" cols="80">
                                 请输入内容
                         </textarea>
-                    </div>
-                </div>
-                <div class="layui-form-item">
-                    <div class="layui-input-block">
-                        <button  class="layui-btn  layui-bg-gray" lay-submit lay-filter="formDemo" id="saveButton" disabled="true">保存修改</button>
-                        <!--<input type="button" class="layui-btn layui-btn-radius  layui-bg-gray" id="leftTime" disabled="true" value="剩余操作时间： 60秒"></input>-->
-                        <input type="button" class="layui-btn layui-btn-radius layui-bg-blue" onclick="clodeSocket()" value="返回上一页">
-                    </div>
-                </div>
-
-            </form>
-
+          </div>
         </div>
-        <div class="layui-col-md3"></div>
+        <div class="layui-form-item">
+          <div class="layui-input-block">
+            <button class="layui-btn  layui-bg-gray" lay-submit lay-filter="formDemo"
+                    id="saveButton" disabled="true">保存修改
+            </button>
+            <!--<input type="button" class="layui-btn layui-btn-radius  layui-bg-gray" id="leftTime" disabled="true" value="剩余操作时间： 60秒"></input>-->
+            <input type="button" class="layui-btn layui-btn-radius layui-bg-blue"
+                   onclick="clodeSocket()" value="返回上一页">
+          </div>
+        </div>
+
+      </form>
+
     </div>
+    <div class="layui-col-md3"></div>
+  </div>
 </div>
 <script src="layui/layui.js"></script>
 <script type="application/javascript">
-    (function ($) {
-        $.getUrlParam = function (name) {
-            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
-            var r = window.location.search.substr(1).match(reg);
-            if (r != null) return decodeURI(r[2]);return null;
-        }
-    })(jQuery);
-    function getUuid() {
-        function S4() {
-            return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-        }
-        return (S4()+S4()+S4()+S4()+S4()+S4()+S4()+S4());
+  (function ($) {
+    $.getUrlParam = function (name) {
+      var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+      var r = window.location.search.substr(1).match(reg);
+      if (r != null) {
+        return decodeURI(r[2]);
+      }
+      return null;
     }
-    //Demo
-    var uuid = $.getUrlParam('uuid'); //文件uuid
-    var userUuid = getUuid();  //用户uuid
-    var socket = null;
-    layui.use('form', function(){
-        var form = layui.form;
-        //监听提交
-        form.on('submit(formDemo)', function(data){
-            debugger;
-            var CText=CKEDITOR.instances.textContent.document.getBody().getText(); //取得纯文本
-            data.field.text = CText;
-            data.field.uuid = uuid;
-            data.field.userUuid = userUuid;
-            $.ajax({
-                url:'/updateFile',
-                type:'POST',
-                data:JSON.stringify(data.field),
-                dataType:'text',
-                contentType: "application/json;charset-UTF-8",
-                success:function (res) {
-                    layer.msg(res);
-                },
-                error:function (erro) {
-                    layer.msg(erro);
-                }
-            });
-            return false;
-        });
-    });
+  })(jQuery);
 
+  function getUuid() {
+    function S4() {
+      return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+    }
 
+    return (S4() + S4() + S4() + S4() + S4() + S4() + S4() + S4());
+  }
 
-    $(document).ready(function(){
-        CKEDITOR.replace('textContent');
-        uuid = $.getUrlParam('uuid')
-        fileName = $.getUrlParam('fileName');
-        //发送ajax请求，并将返回的响应结果直接赋给div
-        $("#textContent").load("/getFileText",{"uuid":uuid},function (data) {
-            CKEDITOR.instances.textContent.setData(data);
-        });
-        $("#fileName").val(fileName).addClass("layui-bg-gray");
-        var socket;
-        if(typeof(WebSocket) == "undefined") {
-            console.log("您的浏览器不支持WebSocket");
-        }else{
-            console.log("您的浏览器支持WebSocket");
-
-            socket = new WebSocket("ws://127.0.0.1:8889/websocket/"+userUuid+"/"+uuid);
-            //打开事件
-            socket.onopen = function() {
-                console.log("Socket 已打开");
-
-            };
-            // socket.send({"uuuuu":uuid});
-            //获得消息事件
-            socket.onmessage = function(msg) {
-                console.log(msg.data);
-                $("#message").val(msg.data)
-                var wobj = $.parseJSON(msg.data);
-                //发现消息进入 开始处理前端触发逻辑
-                 if(wobj.e == '1'){
-                     $.ajax({
-                         url:'/getFileText?uuid='+uuid,
-                         type:'get',
-                         async: false,
-                         dataType:'text',
-                         contentType: "application/json;charset-UTF-8",
-                         success:function (res) {
-                             // $("#textContent").val(res)
-                             CKEDITOR.instances.textContent.setData(res);
-                         },
-                         error:function (erro) {
-                             alert(erro);
-                         }
-                     });
-                     debugger
-                     CKEDITOR.instances.textContent.setReadOnly(false);
-                    $("#saveButton").removeClass("layui-bg-gray").removeAttr("disabled");
-                     // $('#leftTime').removeClass("layui-bg-gray").addClass("layui-btn-warm");
-                    // time=60;
-                    //  var timer = setInterval(function() {
-                    //      if (time == 0) {
-                    //          clearInterval(timer);
-                    //          $('#leftTime').val('剩余操作时间： '+time + '秒');
-                    //      } else {
-                    //          $('#leftTime').val('剩余操作时间： '+time + '秒');
-                    //          time--;
-                    //      }
-                    //  }, 1000);
-                }else {
-                     CKEDITOR.instances.textContent.setReadOnly(true);
-                     $("#textContent").addClass("layui-bg-gray");
-                     $("#saveButton").addClass("layui-bg-gray").attr("disabled","true");
-                     $('#leftTime').removeClass("layui-btn-warm").addClass("layui-bg-gray");
-                     alert("有用户正在编辑，请稍等");
-                 }
-                 if(typeof(wobj.t) != "undefined" || wobj.t != null){
-                     $("#textContent").val(wobj.t);
-                 }
-            };
-            //关闭事件
-            socket.onclose = function() {
-                console.log("Socket已关闭");
-                $("#close").val("Socket已关闭")
-                socket.send("这是来自客户端的消息" + location.href + new Date());
-            };
-            //发生了错误事件
-            socket.onerror = function() {
-                alert("Socket发生了错误");
-                //此时可以尝试刷新页面
-                socket.send("这是来自客户端的消息" + location.href + new Date());
-            }
-            //离开页面时，关闭socket
-            //jquery1.8中已经被废弃，3.0中已经移除
-            // window.onbeforeunload= (e)=>{
-            //     e = e || window.event;
-            //     if (e) {
-            //         e.returnValue = '关闭提示';
-            //     }
-            //     console.log("jfoejaojfojfowaf");
-            //     socket.send("这是来自客户端的消息2222222222" + location.href + new Date());
-            //
-            //     // Chrome, Safari, Firefox 4+, Opera 12+ , IE 9+
-            //     return '关闭提示';
-            // };
-            window.onbeforeunload = function b(){
-
-                setTimeout(function(){
-                        setTimeout(beforeloadResult, 50)}
-                    , 50);
-                return '确认离开网页？';
-            };
-
-            function beforeloadResult () {
-                alert("你取消了离开网页！");}
+  //Demo
+  var uuid = $.getUrlParam('uuid'); //文件uuid
+  var userUuid = getUuid();  //用户uuid
+  var socket = null;
+  layui.use('form', function () {
+    var form = layui.form;
+    //监听提交
+    form.on('submit(formDemo)', function (data) {
+      debugger;
+      var CText = CKEDITOR.instances.textContent.document.getBody().getText(); //取得纯文本
+      data.field.text = CText;
+      data.field.uuid = uuid;
+      data.field.userUuid = userUuid;
+      $.ajax({
+        url: '/updateFile',
+        type: 'POST',
+        data: JSON.stringify(data.field),
+        dataType: 'text',
+        contentType: "application/json;charset-UTF-8",
+        success: function (res) {
+          layer.msg(res);
+        },
+        error: function (erro) {
+          layer.msg(erro);
         }
+      });
+      return false;
     });
-function clodeSocket() {
+  });
+
+  $(document).ready(function () {
+    CKEDITOR.replace('textContent');
+    uuid = $.getUrlParam('uuid')
+    fileName = $.getUrlParam('fileName');
+    //发送ajax请求，并将返回的响应结果直接赋给div
+    $("#textContent").load("/getFileText", {"uuid": uuid}, function (data) {
+      CKEDITOR.instances.textContent.setData(data);
+    });
+    $("#fileName").val(fileName).addClass("layui-bg-gray");
+    var socket;
+    if (typeof (WebSocket) == "undefined") {
+      console.log("您的浏览器不支持WebSocket");
+    } else {
+      console.log("您的浏览器支持WebSocket");
+      $("#currentUser").val(userUuid);
+      socket = new WebSocket("ws://127.0.0.1:8889/websocket/" + userUuid + "/" + uuid);
+      //打开事件
+      socket.onopen = function () {
+        console.log("Socket 已打开");
+
+      };
+      // socket.send({"uuuuu":uuid});
+      //获得消息事件
+      socket.onmessage = function (msg) {
+        console.log(msg.data);
+        $("#message").val(msg.data)
+        var wobj = $.parseJSON(msg.data);
+        //发现消息进入 开始处理前端触发逻辑
+        if (wobj.e == '1') {
+          $.ajax({
+            url: '/getFileText?uuid=' + uuid,
+            type: 'get',
+            async: false,
+            dataType: 'text',
+            contentType: "application/json;charset-UTF-8",
+            success: function (res) {
+              // $("#textContent").val(res)
+              CKEDITOR.instances.textContent.setData(res);
+            },
+            error: function (erro) {
+              alert(erro);
+            }
+          });
+          CKEDITOR.instances.textContent.setReadOnly(false);
+          $("#saveButton").removeClass("layui-bg-gray").removeAttr("disabled");
+          $("#editable").val("无").removeClass("layui-bg-red");
+        } else if (wobj.e == '0') {
+          CKEDITOR.instances.textContent.setReadOnly(true);
+          $("#textContent").addClass("layui-bg-gray");
+          $("#saveButton").addClass("layui-bg-gray").attr("disabled", "true");
+          $('#leftTime').removeClass("layui-btn-warm").addClass("layui-bg-gray");
+          console.log("有用户正在编辑")
+          $("#editable").val("有").addClass("layui-bg-red");
+        }else if(wobj.e == '3'){
+          console.log(wobj.t);
+          CKEDITOR.instances.textContent.setData(wobj.t);
+        }
+        if (typeof (wobj.t) != "undefined" || wobj.t != null) {
+          $("#textContent").val(wobj.t);
+        }
+      };
+      //关闭事件
+      socket.onclose = function () {
+        console.log("Socket已关闭");
+        $("#close").val("Socket已关闭")
+        socket.send("这是来自客户端的消息" + location.href + new Date());
+      };
+      //发生了错误事件
+      socket.onerror = function () {
+        alert("Socket发生了错误");
+        //此时可以尝试刷新页面
+        socket.send("这是来自客户端的消息" + location.href + new Date());
+      }
+      // window.onbeforeunload = function b() {
+      //
+      //   setTimeout(function () {
+      //         setTimeout(beforeloadResult, 50)
+      //       }
+      //       , 50);
+      //   return '确认离开网页？';
+      // };
+      //
+      // function beforeloadResult() {
+      //   alert("你取消了离开网页！");
+      // }
+    }
+  });
+
+  function clodeSocket() {
     debugger
     javascript:history.back(-1);
-}
+  }
 
 </script>
 

@@ -66,25 +66,25 @@ public class WebSocketServer {
         this.sid = sid;
         this.fid = fid;
         try {
-            log.info(sid+"****************getlock");
             WebsocketVo websocketVo = new WebsocketVo();
-            websocketVo.setE("1");
-            sendInfo(JSON.toJSONString(websocketVo),sid);
-            websocketVo.setE("0");
-            sendInfoToOthers(JSON.toJSONString(websocketVo),sid);
-            redisTool.set(fid,sid,60);
             while (true){
                 if(!redisTool.hasKey(fid)){
+                    websocketVo.setE("1");
                     sendInfo(JSON.toJSONString(websocketVo),sid);
+                    websocketVo.setE("0");
+                    sendInfoToOthers(JSON.toJSONString(websocketVo),sid);
+                    redisTool.set(fid,sid,60);
                     break;
+                }else {
+                    websocketVo.setE("0");
+                    sendInfo(JSON.toJSONString(websocketVo),sid);
                 }
+                Thread.sleep(1000);
                 continue;
             }
-            lock.unlock();
 
         } catch (Exception e) {
             log.error("websocket IO异常");
-            lock.unlock();
         }
     }
 
@@ -101,9 +101,7 @@ public class WebSocketServer {
                     redisTool.del(fid);
                 }
             }
-            lock.unlock();
         }catch (Exception e){
-            lock.unlock();
         }
 
         log.info("有一连接关闭！当前在线人数为" + getOnlineCount());
@@ -116,20 +114,11 @@ public class WebSocketServer {
     @OnMessage
     public void onMessage(String message, Session session) {
         log.info("收到来自窗口"+sid+"的信息:"+message);
-        //群发消息
-//        for (WebSocketServer item : webSocketSet) {
-//            try {
-//                item.sendMessage(message);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
         if(redisTool.hasKey(fid)){
             if(sid.equals(redisTool.get(fid))){
                 redisTool.del(fid);
             }
         }
-        lock.unlock();
     }
 
     /**
@@ -146,9 +135,7 @@ public class WebSocketServer {
                     redisTool.del(fid);
                 }
             }
-            lock.unlock();
         }catch (Exception e){
-            lock.unlock();
         }
         error.printStackTrace();
     }
