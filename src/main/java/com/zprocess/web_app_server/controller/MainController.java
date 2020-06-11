@@ -184,6 +184,9 @@ public class MainController {
             throw new Exception("uuid 不能为空");
         }
         if(!redisTool.hasKey(formVo.getUuid()) || !formVo.getUserUuid().equals(redisTool.get(formVo.getUuid()))){
+            WebsocketVo websocketVo = new WebsocketVo();
+            websocketVo.setE("0");
+            WebSocketServer.sendInfo(JSON.toJSONString(websocketVo),formVo.getUserUuid());
             return "已超过更改时间！！！";
         }
         FileTool.saveFile(formVo,true);

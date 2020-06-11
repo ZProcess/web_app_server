@@ -114,11 +114,14 @@ public class WebSocketServer {
     @OnMessage
     public void onMessage(String message, Session session) {
         log.info("收到来自窗口"+sid+"的信息:"+message);
-        if(redisTool.hasKey(fid)){
-            if(sid.equals(redisTool.get(fid))){
-                redisTool.del(fid);
+        if("closeRedis".equals(message)){
+            if(redisTool.hasKey(fid)){
+                if(sid.equals(redisTool.get(fid))){
+                    redisTool.del(fid);
+                }
             }
         }
+
     }
 
     /**

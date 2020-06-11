@@ -90,7 +90,6 @@
     var form = layui.form;
     //监听提交
     form.on('submit(formDemo)', function (data) {
-      debugger;
       var CText = CKEDITOR.instances.textContent.document.getBody().getText(); //取得纯文本
       data.field.text = CText;
       data.field.uuid = uuid;
@@ -118,10 +117,9 @@
     fileName = $.getUrlParam('fileName');
     //发送ajax请求，并将返回的响应结果直接赋给div
     $("#textContent").load("/getFileText", {"uuid": uuid}, function (data) {
-      CKEDITOR.instances.textContent.setData(data);
+      CKEDITOR.instances["textContent"].setData(data);
     });
     $("#fileName").val(fileName).addClass("layui-bg-gray");
-    var socket;
     if (typeof (WebSocket) == "undefined") {
       console.log("您的浏览器不支持WebSocket");
     } else {
@@ -149,17 +147,17 @@
             contentType: "application/json;charset-UTF-8",
             success: function (res) {
               // $("#textContent").val(res)
-              CKEDITOR.instances.textContent.setData(res);
+              CKEDITOR.instances["textContent"].setData(res);
             },
             error: function (erro) {
               alert(erro);
             }
           });
-          CKEDITOR.instances.textContent.setReadOnly(false);
+          CKEDITOR.instances["textContent"].setReadOnly(false);
           $("#saveButton").removeClass("layui-bg-gray").removeAttr("disabled");
           $("#editable").val("无").removeClass("layui-bg-red");
         } else if (wobj.e == '0') {
-          CKEDITOR.instances.textContent.setReadOnly(true);
+          CKEDITOR.instances["textContent"].setReadOnly(true);
           $("#textContent").addClass("layui-bg-gray");
           $("#saveButton").addClass("layui-bg-gray").attr("disabled", "true");
           $('#leftTime').removeClass("layui-btn-warm").addClass("layui-bg-gray");
@@ -167,7 +165,7 @@
           $("#editable").val("有").addClass("layui-bg-red");
         }else if(wobj.e == '3'){
           console.log(wobj.t);
-          CKEDITOR.instances.textContent.setData(wobj.t);
+          CKEDITOR.instances["textContent"].setData(wobj.t);
         }
         if (typeof (wobj.t) != "undefined" || wobj.t != null) {
           $("#textContent").val(wobj.t);
@@ -201,7 +199,7 @@
   });
 
   function clodeSocket() {
-    debugger
+    socket.send("这是来自客户端的消息" + "closeRedis");
     javascript:history.back(-1);
   }
 
