@@ -65,8 +65,8 @@ public class WebSocketServer {
         log.info("有新窗口开始监听:"+sid+",当前在线人数为" + getOnlineCount());
         this.sid = sid;
         this.fid = fid;
-        WebsocketVo websocketVo = new WebsocketVo();
         try {
+            WebsocketVo websocketVo = new WebsocketVo();
             while (true){
                 if(!redisTool.hasKey(fid)){
                     websocketVo.setE("1");
@@ -80,7 +80,9 @@ public class WebSocketServer {
                     sendInfo(JSON.toJSONString(websocketVo),sid);
                 }
                 Thread.sleep(1000);
+                continue;
             }
+
         } catch (Exception e) {
             log.error("websocket IO异常");
         }
@@ -99,9 +101,7 @@ public class WebSocketServer {
                     redisTool.del(fid);
                 }
             }
-
         }catch (Exception e){
-
         }
 
         log.info("有一连接关闭！当前在线人数为" + getOnlineCount());
@@ -112,21 +112,16 @@ public class WebSocketServer {
      *
      * @param message 客户端发送过来的消息*/
     @OnMessage
-    public void onMessage(String message, Session session) throws IOException {
+    public void onMessage(String message, Session session) {
         log.info("收到来自窗口"+sid+"的信息:"+message);
-        //群发消息
-//        for (WebSocketServer item : webSocketSet) {
-//            try {
-//                item.sendMessage(message);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-        if(redisTool.hasKey(fid)){
-            if(sid.equals(redisTool.get(fid))){
-                redisTool.del(fid);
+        if("closeRedis".equals(message)){
+            if(redisTool.hasKey(fid)){
+                if(sid.equals(redisTool.get(fid))){
+                    redisTool.del(fid);
+                }
             }
         }
+
     }
 
     /**
@@ -144,7 +139,6 @@ public class WebSocketServer {
                 }
             }
         }catch (Exception e){
-
         }
         error.printStackTrace();
     }
