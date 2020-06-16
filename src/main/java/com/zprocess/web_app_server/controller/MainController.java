@@ -6,7 +6,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zprocess.web_app_server.entity.FileInfo;
+import com.zprocess.web_app_server.entity.User;
 import com.zprocess.web_app_server.service.FileInfoService;
+import com.zprocess.web_app_server.service.UserService;
 import com.zprocess.web_app_server.utils.CommonTool;
 import com.zprocess.web_app_server.utils.FileTool;
 import com.zprocess.web_app_server.utils.RedisTool;
@@ -19,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -37,14 +41,27 @@ public class MainController {
     @Autowired
     private FileInfoService fileInfoService;
 
+    @Autowired
+    private UserService userService;
+
     @RequestMapping(value = "/")
     public String newPage() {
-        return "newPage";
+        return "login";
     }
 
-    @RequestMapping(value = "/login")
-    public String login() {
-        return "login";
+    @PostMapping(value = "/login")
+    public ModelAndView login(@RequestParam String userName ,@RequestParam String password) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("user_name",userName);
+        queryWrapper.eq("pass_word",password);
+        User user = userService.getOne(queryWrapper);
+        if(user == null){
+            ModelAndView mv=new ModelAndView("login_erro");
+            return mv;
+        }else{
+            ModelAndView mv=new ModelAndView("newPage");
+            return mv;
+        }
     }
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @ResponseBody
